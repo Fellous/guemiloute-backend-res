@@ -6,7 +6,7 @@ const sequelize = require("./config/database");
 const app = express();
 
 // Enable CORS
-app.use(cors({ origin: "http://localhost:3005" })); // Set this to your frontend URL
+app.use(cors({ origin: "http://localhost:3001" })); // Set this to your frontend URL
 
 // Middleware
 app.use(express.json());

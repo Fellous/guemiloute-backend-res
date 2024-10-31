@@ -14,7 +14,8 @@ exports.getItems = async (req, res) => {
     const items = await Item.findAll();
     res.json(items);
   } catch (error) {
-    res.status(500).json({ error: "Unable to fetch items" });
+    console.error("Erreur lors de la récupération des items :", error); // Affiche l'erreur complète
+    res.status(500).json({ error: "Unable to fetch items", details: error });
   }
 };
 
