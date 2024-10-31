@@ -4,13 +4,14 @@ require("dotenv").config();
 const User = require("../models/User");
 
 exports.registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body; // Inclure "role" si nécessaire
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const user = await User.create({
       username,
       email,
       password: hashedPassword,
+      role: role || "borrower", // Définir un rôle par défaut si aucun n'est fourni
     });
     res.status(201).json(user);
   } catch (error) {
@@ -46,4 +47,10 @@ exports.getProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve user profile" });
   }
+};
+exports.getAllUsers = (req, res) => {
+  // Exemple de fonction pour récupérer tous les utilisateurs
+  User.findAll()
+    .then((users) => res.json(users))
+    .catch((err) => res.status(500).json({ error: "Erreur serveur" ,err}));
 };
