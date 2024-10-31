@@ -4,20 +4,27 @@ require("dotenv").config();
 const User = require("../models/User");
 
 exports.registerUser = async (req, res) => {
-  const { username, email, password, role } = req.body; // Inclure "role" si nécessaire
+  const { firstName, lastName, email, password, role } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const user = await User.create({
-      username,
+      username: `${firstName} ${lastName}`,
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
-      role: role || "borrower", // Définir un rôle par défaut si aucun n'est fourni
+      role,
+      isApproved: role === "host" ? false : true, // Non approuvé si `host`
     });
     res.status(201).json(user);
   } catch (error) {
-    res.status(400).json({ error: "User registration failed" });
+    console.error("Error in user registration:", error);
+    res.status(400).json({ error: "User registration failed", details: error });
   }
 };
+
+
+
 
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -48,9 +55,9 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve user profile" });
   }
 };
+
 exports.getAllUsers = (req, res) => {
-  // Exemple de fonction pour récupérer tous les utilisateurs
   User.findAll()
     .then((users) => res.json(users))
-    .catch((err) => res.status(500).json({ error: "Erreur serveur" ,err}));
+    .catch((err) => res.status(500).json({ error: "Erreur serveur", err }));
 };
