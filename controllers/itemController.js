@@ -1,89 +1,99 @@
-const Item = require("../models/Item");
-const path = require("path");
-const fs = require("fs");
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Link,
+  Navigate,
+} from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSignOutAlt,
+  faList,
+  faPlus,
+  faUsers,
+} from "@fortawesome/free-solid-svg-icons";
+import "./assets/styles/App.css";
+import CreateItem from "./components/CreateItem";
+import ItemList from "./components/ItemList";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import UserManagement from "./components/UserManagement";
+import { make as RescriptApp } from "./App.bs";
+import { make as UserForm } from "./components/rescript/UserForm.bs";
+import { make as HomePage } from "./components/rescript/HomePage.bs";
+import ItemDetail from "./components/ItemDetail";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-exports.createItem = async (req, res) => {
-  try {
-    const { title, description, status, category, quantity } = req.body;
+function App() {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  };
 
-    // Gestion de l'upload de l'image
-    const imageUrl = req.file ? `/img/${req.file.filename}` : null;
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
 
-    if (req.file) {
-      const destinationPath = path.join(
-        __dirname,
-        "../../guemiloute/public/img/",
-        req.file.filename
-      );
+  return (
+    <Router>
+      <div className="app-container">
+        <div className="animated-background">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+          <div className="shape shape-4"></div>
+        </div>
+        <header className="App-header">
+          <nav className="navbar">
+            <Link to="/" className="logo">
+              Guemiloute
+            </Link>
+            {isLoggedIn ? (
+              <div className="nav-links">
+                <Link to="/items" className="nav-link">
+                  <FontAwesomeIcon icon={faList} /> Liste des objets
+                </Link>
+                <Link to="/create-item" className="nav-link">
+                  <FontAwesomeIcon icon={faPlus} /> Créer un objet
+                </Link>
+                <Link to="/user-management" className="nav-link">
+                  <FontAwesomeIcon icon={faUsers} /> Gestion des utilisateurs
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="logout-button nav-link"
+                >
+                  <FontAwesomeIcon icon={faSignOutAlt} /> Déconnexion
+                </button>
+              </div>
+            ) : (
+              <div className="nav-links">
+                <Link to="/login" className="nav-link">
+                  Connexion
+                </Link>
+                <Link to="/signup" className="nav-link">
+                  Inscription
+                </Link>
+              </div>
+            )}
+          </nav>
+        </header>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/items" element={<ItemList />} />
+          <Route path="/create-item" element={<CreateItem />} />
+          <Route path="/user-management" element={<UserManagement />} />
+          <Route path="/item/:title" element={<ItemDetail />} />
+          <Route path="/rescript-app" element={<RescriptApp />} />
+          <Route path="/user-form" element={<UserForm />} />
+          <Route path="/HomePage" element={<HomePage />} />
+        </Routes>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+      </div>
+    </Router>
+  );
+}
 
-      // Déplacement du fichier téléchargé vers le dossier img du frontend
-      fs.renameSync(req.file.path, destinationPath);
-    }
-
-    const newItem = await Item.create({
-      title,
-      description,
-      status,
-      category,
-      quantity,
-      image_url: imageUrl,
-    });
-
-    res.status(201).json(newItem);
-  } catch (error) {
-    console.error("Erreur lors de la création de l'item :", error);
-    res
-      .status(500)
-      .json({ error: "Impossible de créer l'item", details: error });
-  }
-};
-
-exports.getItems = async (req, res) => {
-  try {
-    const items = await Item.findAll();
-    res.json(items);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des items :", error);
-    res
-      .status(500)
-      .json({ error: "Impossible de récupérer les items", details: error });
-  }
-};
-
-exports.updateItem = async (req, res) => {
-  try {
-    const { title, description, status, category, quantity, image_url } =
-      req.body;
-
-    const updatedItem = await Item.update(
-      {
-        title,
-        description,
-        status,
-        category,
-        quantity,
-        image_url,
-      },
-      { where: { id: req.params.id } }
-    );
-
-    res.json(updatedItem);
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour de l'item :", error);
-    res
-      .status(500)
-      .json({ error: "Impossible de mettre à jour l'item", details: error });
-  }
-};
-
-exports.deleteItem = async (req, res) => {
-  try {
-    await Item.destroy({ where: { id: req.params.id } });
-    res.status(204).send();
-  } catch (error) {
-    console.error("Erreur lors de la suppression de l'item :", error);
-    res
-      .status(500)
-      .json({ error: "Impossible de supprimer l'item", details: error });
-  }
-};
+export default App;
