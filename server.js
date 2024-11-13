@@ -2,28 +2,25 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./config/database");
-
 const app = express();
 
-// Enable CORS
-app.use(cors({ origin: "http://localhost:3001" })); // Set this to your frontend URL
-
-// Middleware
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
 
-// Import routes
+// Import des routes
 const userRoutes = require("./routes/user");
-app.use("/api/users", userRoutes);
 const itemRoutes = require("./routes/item");
-app.use("/api/items", itemRoutes);
 const borrowRoutes = require("./routes/borrow");
+
+app.use("/api/users", userRoutes);
+app.use("/api/items", itemRoutes);
 app.use("/api/borrows", borrowRoutes);
 
-// Connect to MySQL
-sequelize
-  .sync()
-  .then(() => console.log("Database connected"))
-  .catch((err) => console.log("Database error: ", err));
+// Synchroniser la base de données
+sequelize.sync({ alter: true })
+  .then(() => console.log("Base de données synchronisée"))
+  .catch(err => console.error("Erreur de synchronisation :", err));
 
-// Start server
-app.listen(3020, () => console.log("Server started on port 3020"));
+// Démarrer le serveur
+const PORT = process.env.PORT || 3020;
+app.listen(PORT, () => console.log(`Serveur démarré sur le port ${PORT}`));

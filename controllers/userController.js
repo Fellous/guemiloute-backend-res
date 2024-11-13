@@ -61,3 +61,51 @@ exports.getAllUsers = (req, res) => {
     .then((users) => res.json(users))
     .catch((err) => res.status(500).json({ error: "Erreur serveur", err }));
 };
+
+// Mise à jour d'un utilisateur
+exports.updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, email, password, role, isApproved } = req.body;
+  
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Si un mot de passe est fourni, on le hache avant de le sauvegarder
+    const updatedData = {
+      firstName,
+      lastName,
+      email,
+      role,
+      isApproved,
+    };
+    if (password) {
+      updatedData.password = await bcrypt.hash(password, 10);
+    }
+
+    await user.update(updatedData);
+    res.json({ message: "User updated successfully", user });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Failed to update user" });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+  console.log("ID reçu pour suppression:",typeof id);
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    await user.destroy();
+    res.json({ message: "Utilisateur supprimé avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la suppression:", error);
+    res.status(500).json({ error: "Erreur interne lors de la suppression" });
+  }
+};
+
