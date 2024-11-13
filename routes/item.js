@@ -7,7 +7,7 @@ const path = require("path");
 // Configuration de Multer pour gérer les uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../../guemiloute/public/img/")); // Dossier du frontend
+    cb(null, path.join(__dirname, "../../guemiloute-test/public/img/")); // Dossier du frontend
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${

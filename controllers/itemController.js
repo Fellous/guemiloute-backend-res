@@ -12,7 +12,7 @@ exports.createItem = async (req, res) => {
     if (req.file) {
       const destinationPath = path.join(
         __dirname,
-        "../../guemiloute/public/img/",
+        "../../guemiloute-test/public/img/",
         req.file.filename
       );
 
